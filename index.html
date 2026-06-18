@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HUST-Ride Pro MVP Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS giúp bản đồ mượt mà khi kéo thả và ẩn thanh cuộn */
+        .map-container {
+            cursor: grab;
+        }
+        .map-container:active {
+            cursor: grabbing;
+        }
+        .no-select {
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex justify-center items-center h-screen">
+
+    <div class="w-[375px] h-[750px] bg-white rounded-[32px] shadow-2xl overflow-hidden border-[8px] border-gray-800 flex flex-col relative no-select">
+        
+        <div class="bg-red-700 text-white px-6 pt-3 pb-2 flex justify-between text-xs font-bold z-30 relative">
+            <span>9:41</span>
+            <div class="space-x-1">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <div class="bg-red-600 text-white p-4 flex items-center justify-between shadow-md z-30 relative">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center text-red-600 font-black text-sm">H</div>
+                <div>
+                    <h1 class="font-bold text-sm">HUST-Ride</h1>
+                    <p class="text-[10px] text-red-200"><i class="fas fa-shield-alt"></i> Đã xác thực @sis.hust.edu.vn</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 bg-red-700 px-2 py-1 rounded-full text-xs">
+                <i class="fas fa-coins text-yellow-400"></i>
+                <span id="user-points" class="font-bold">120đ</span>
+            </div>
+        </div>
+
+        <div class="absolute top-16 inset-x-4 bg-white p-1 rounded-xl shadow-lg flex z-20 border border-gray-100">
+            <button id="tab-walker" onclick="switchMode('walker')" class="flex-1 py-2 text-center text-sm font-bold rounded-lg bg-red-600 text-white transition-all">
+                <i class="fas fa-walking mr-1"></i> Tìm Xe
+            </button>
+            <button id="tab-biker" onclick="switchMode('biker')" class="flex-1 py-2 text-center text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">
+                <i class="fas fa-motorcycle mr-1"></i> Đón Bạn
+            </button>
+        </div>
+
+        <div id="map-viewport" class="flex-1 bg-gray-300 relative overflow-hidden map-container">
+            
+            <div id="map-content" class="absolute w-[900px] h-[600px] top-[-50px] left-[-200px] transition-transform duration-75 ease-out" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/d/d4/Map_of_Hanoi_University_of_Science_and_Technology.jpg'); background-size: cover; background-position: center;">
+                
+                <div class="absolute top-[60%] left-[35%] text-blue-600 text-center pointer-events-none">
+                    <i class="fas fa-user-pin text-4xl drop-shadow-lg"></i>
+                    <span class="block bg-blue-600 text-white text-[9px] px-1.5 py-0.5 rounded shadow font-bold whitespace-nowrap mt-0.5">Trọ Tạ Quang Bửu</span>
+                </div>
+
+                <button onclick="selectDestination('Tòa nhà D3 - Bách Khoa')" class="absolute top-[48%] left-[55%] focus:outline-none group">
+                    <i class="fas fa-map-marker-alt text-4xl text-red-600 drop-shadow-md group-hover:scale-110 transition-all"></i>
+                    <span class="block bg-white text-black text-[10px] px-1.5 py-0.5 rounded shadow border border-red-500 font-bold whitespace-nowrap mt-0.5">Tòa D3</span>
+                </button>
+
+                <button onclick="selectDestination('Thư viện Tạ Quang Bửu')" class="absolute top-[52%] left-[45%] focus:outline-none group">
+                    <i class="fas fa-map-marker-alt text-4xl text-red-600 drop-shadow-md group-hover:scale-110 transition-all"></i>
+                    <span class="block bg-white text-black text-[10px] px-1.5 py-0.5 rounded shadow border border-red-500 font-bold whitespace-nowrap mt-0.5">Thư viện TQB</span>
+                </button>
+
+                <button onclick="selectDestination('Cổng Parabol (Đường Giải Phóng)')" class="absolute top-[42%] left-[12%] focus:outline-none group">
+                    <i class="fas fa-map-marker-alt text-4xl text-red-600 drop-shadow-md group-hover:scale-110 transition-all"></i>
+                    <span class="block bg-white text-black text-[10px] px-1.5 py-0.5 rounded shadow border border-red-500 font-bold whitespace-nowrap mt-0.5">Cổng Parabol</span>
+                </button>
+            </div>
+
+            <div class="absolute top-28 left-1/2 transform -translate-x-1/2 bg-black/70 text-white text-[10px] px-3 py-1 rounded-full z-10 font-medium pointer-events-none text-center whitespace-nowrap">
+                <i class="fas fa-arrows-alt mr-1"></i> Giữ chuột để di chuyển Map • Bấm Ghim để chọn điểm
+            </div>
+        </div>
+
+        <div id="bottom-sheet" class="absolute bottom-0 inset-x-0 bg-white rounded-t-3xl shadow-[0_-10px_25px_rgba(0,0,0,0.15)] z-20 flex flex-col transition-all duration-300 border-t border-gray-100" style="height: 290px;">
+            
+            <div id="sheet-handle" class="w-full py-3 cursor-row-resize flex justify-center items-center select-none active:bg-gray-50 rounded-t-3xl">
+                <div class="w-14 h-1.5 bg-gray-300 rounded-full"></div>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto px-4 pb-4">
+                <div id="panel-walker" class="space-y-3">
+                    <h3 class="font-bold text-gray-800 text-sm flex justify-between items-center">
+                        <span><i class="far fa-calendar-alt text-red-500 mr-1"></i> Lên lịch đến trường</span>
+                        <span class="text-[10px] text-gray-400 font-medium">Kéo thanh xám để mở rộng <i class="fas fa-chevron-up"></i></span>
+                    </h3>
+
+                    <div class="flex space-x-2">
+                        <button onclick="selectDestination('Đại học Bách Khoa Hà Nội (Điểm bất kỳ)')" class="flex-1 bg-gradient-to-r from-red-50 to-orange-50 border border-red-300 text-red-700 rounded-xl p-2 text-left flex items-center justify-between hover:from-red-100 transition-all">
+                            <div>
+                                <h4 class="text-xs font-bold"><i class="fas fa-rocket mr-1 text-orange-500"></i> Đến Bách Khoa nói chung</h4>
+                                <p class="text-[9px] text-red-500">Tăng 85% khả năng ghép đôi nhanh tiện đường</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-xs text-red-400"></i>
+                        </button>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2 bg-gray-50 p-2.5 rounded-lg border border-gray-200">
+                            <i class="fas fa-circle text-green-500 text-xs w-4 text-center"></i>
+                            <div class="w-full">
+                                <span class="block text-[8px] text-gray-400 font-bold uppercase">Điểm đón của bạn</span>
+                                <input type="text" value="Ngõ 15 Tạ Quang Bửu (Khu trọ)" class="bg-transparent text-xs w-full focus:outline-none text-gray-700 font-semibold" readonly>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 bg-red-50/50 p-2.5 rounded-lg border border-red-200">
+                            <i class="fas fa-map-marker-alt text-red-500 text-sm w-4 text-center"></i>
+                            <div class="w-full">
+                                <span class="block text-[8px] text-red-500 font-bold uppercase">Điểm đến hiện tại</span>
+                                <input id="destination-input" type="text" value="Thư viện Tạ Quang Bửu" class="bg-transparent text-xs w-full focus:outline-none text-red-700 font-bold" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="hidden-details" class="space-y-2 pt-1 opacity-60 transition-opacity">
+                        <div class="flex space-x-2">
+                            <div class="flex-1 bg-gray-50 p-2 rounded-lg border border-gray-200 text-center">
+                                <span class="block text-[9px] text-gray-400 uppercase font-bold">Lịch trình học</span>
+                                <span class="text-xs font-bold text-gray-700">06:45 Sáng (Thứ 2)</span>
+                            </div>
+                            <div class="w-24 bg-gray-50 p-2 rounded-lg border border-gray-200 text-center">
+                                <span class="block text-[9px] text-gray-400 uppercase font-bold">Phí share</span>
+                                <span class="text-xs font-bold text-green-600">-5 điểm</span>
+                            </div>
+                        </div>
+                        <button onclick="startMatching()" class="w-full bg-red-600 hover:bg-red-700 text-white text-sm font-bold py-2.5 rounded-xl shadow-md transition-all">
+                            ĐĂNG TIN HẸN TRƯỚC
+                        </button>
+                    </div>
+                </div>
+
+                <div id="panel-biker" class="space-y-3 hidden">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-gray-800 text-sm"><i class="fas fa-bolt text-yellow-500 mr-1"></i> Yêu cầu tiện đường quanh bạn</h3>
+                        <span class="text-[10px] bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded-full">Đang định vị</span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="p-2.5 bg-red-50 rounded-xl border border-red-100 flex justify-between items-center">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center font-bold text-xs text-gray-600">TH</div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-gray-800">Tuấn Hùng (K69)</h4>
+                                    <p id="biker-panel-dest" class="text-[10px] text-gray-500"><i class="fas fa-arrow-right text-[8px]"></i> Đến: Thư viện Tạ Quang Bửu</p>
+                                </div>
+                            </div>
+                            <button onclick="acceptMatch('Tuấn Hùng')" class="bg-red-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg">Đèo luôn (+5đ)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white border-t border-gray-200 px-6 py-2 flex justify-between items-center text-gray-400 z-30 relative">
+            <button class="flex flex-col items-center space-y-0.5 text-red-600">
+                <i class="fas fa-home text-lg"></i>
+                <span class="text-[9px] font-medium">Trang chủ</span>
+            </button>
+            <button class="flex flex-col items-center space-y-0.5 hover:text-gray-600">
+                <i class="fas fa-history text-lg"></i>
+                <span class="text-[9px] font-medium">Lịch trình</span>
+            </button>
+            <button class="flex flex-col items-center space-y-0.5 hover:text-gray-600">
+                <i class="fas fa-gift text-lg"></i>
+                <span class="text-[9px] font-medium">Đổi thưởng</span>
+            </button>
+            <button class="flex flex-col items-center space-y-0.5 hover:text-gray-600">
+                <i class="fas fa-user text-lg"></i>
+                <span class="text-[9px] font-medium">Tài khoản</span>
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- LOGIC 1: GIỮ CHUỘT KÉO DI CHUYỂN MAP ĐỘNG ---
+        const viewport = document.getElementById('map-viewport');
+        const mapContent = document.getElementById('map-content');
+        let isDraggingMap = false;
+        let startX, startY, currentLeft = -200, currentTop = -50;
+
+        viewport.addEventListener('mousedown', (e) => {
+            // Chỉ bắt đầu kéo nếu click vào bản đồ, không phải click nút ghim
+            if (e.target.closest('button')) return;
+            isDraggingMap = true;
+            startX = e.clientX - currentLeft;
+            startY = e.clientY - currentTop;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDraggingMap) return;
+            currentLeft = e.clientX - startX;
+            currentTop = e.clientY - startY;
+
+            // Giới hạn biên độ kéo để tránh kéo map ra khỏi vùng nhìn thấy
+            currentLeft = Math.max(-500, Math.min(0, currentLeft));
+            currentTop = Math.max(-200, Math.min(0, currentTop));
+
+            mapContent.style.left = `${currentLeft}px`;
+            mapContent.style.top = `${currentTop}px`;
+        });
+
+        window.addEventListener('mouseup', () => { isDraggingMap = false; });
+
+        // --- LOGIC 2: KÉO LÊN KÉO XUỐNG BOTTOM SHEET ---
+        const sheet = document.getElementById('bottom-sheet');
+        const handle = document.getElementById('sheet-handle');
+        const hiddenDetails = document.getElementById('hidden-details');
+        let isDraggingSheet = false;
+        let startPageY;
+        let initialHeight;
+
+        handle.addEventListener('mousedown', (e) => {
+            isDraggingSheet = true;
+            startPageY = e.pageY;
+            initialHeight = parseInt(sheet.style.height);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDraggingSheet) return;
+            const deltaY = startPageY - e.pageY;
+            let newHeight = initialHeight + deltaY;
+
+            // Đặt giới hạn kéo: Cao nhất 460px, thấp nhất 200px
+            newHeight = Math.max(200, Math.min(460, newHeight));
+            sheet.style.height = `${newHeight}px`;
+
+            // Thay đổi độ mờ của phần chi tiết ẩn tùy theo chiều cao
+            if (newHeight > 280) {
+                hiddenDetails.style.opacity = "1";
+            } else {
+                hiddenDetails.style.opacity = "0.5";
+            }
+        });
+
+        window.addEventListener('mouseup', () => { isDraggingSheet = false; });
+
+        // --- LOGIC TƯƠNG TÁC CHỨC NĂNG ---
+        function selectDestination(placeName) {
+            document.getElementById('destination-input').value = placeName;
+            document.getElementById('biker-panel-dest').innerHTML = `<i class="fas fa-arrow-right text-[8px]"></i> Đến: ${placeName}`;
+        }
+
+        function switchMode(mode) {
+            const tabWalker = document.getElementById('tab-walker');
+            const tabBiker = document.getElementById('tab-biker');
+            const panelWalker = document.getElementById('panel-walker');
+            const panelBiker = document.getElementById('panel-biker');
+
+            if (mode === 'walker') {
+                tabWalker.className = "flex-1 py-2 text-center text-sm font-bold rounded-lg bg-red-600 text-white transition-all";
+                tabBiker.className = "flex-1 py-2 text-center text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all";
+                panelWalker.classList.remove('hidden');
+                panelBiker.classList.add('hidden');
+            } else {
+                tabBiker.className = "flex-1 py-2 text-center text-sm font-bold rounded-lg bg-red-600 text-white transition-all";
+                tabWalker.className = "flex-1 py-2 text-center text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all";
+                panelBiker.classList.remove('hidden');
+                panelWalker.classList.add('hidden');
+            }
+        }
+
+        function startMatching() {
+            const dest = document.getElementById('destination-input').value;
+            alert(`🎉 Đã đăng lịch trình thành công!\nHệ thống đang quét tìm xe tiện đường di chuyển đến: ${dest}`);
+        }
+
+        function acceptMatch(name) {
+            alert(`🏍️ Bạn đã nhận đèo bạn ${name}!\nSau khi hoàn thành, hệ thống tự động cộng điểm thưởng.`);
+            let pointsElement = document.getElementById('user-points');
+            let currentPoints = parseInt(pointsElement.innerText);
+            pointsElement.innerText = (currentPoints + 5) + "đ";
+        }
+    </script>
+</body>
+</html>
