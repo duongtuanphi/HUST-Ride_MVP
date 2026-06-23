@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HUST-Ride Pro MVP Demo</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .map-container {
@@ -21,8 +23,10 @@
 </head>
 <body class="bg-gray-100 flex justify-center items-center h-screen">
 
+    <!-- Giả lập khung màn hình Điện thoại -->
     <div class="w-[375px] h-[750px] bg-white rounded-[32px] shadow-2xl overflow-hidden border-[8px] border-gray-800 flex flex-col relative no-select">
         
+        <!-- Status Bar -->
         <div class="bg-red-700 text-white px-6 pt-3 pb-2 flex justify-between text-xs font-bold z-30 relative">
             <span>9:41</span>
             <div class="space-x-1">
@@ -32,6 +36,7 @@
             </div>
         </div>
 
+        <!-- Header App -->
         <div class="bg-red-600 text-white p-4 flex items-center justify-between shadow-md z-30 relative">
             <div class="flex items-center space-x-2">
                 <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center text-red-600 font-black text-sm">H</div>
@@ -40,13 +45,17 @@
                     <p class="text-[10px] text-red-200"><i class="fas fa-shield-alt"></i> Đã xác thực @sis.hust.edu.vn</p>
                 </div>
             </div>
-            <div class="flex items-center space-x-2 bg-red-700 px-2 py-1 rounded-full text-xs">
+            <!-- KHU VỰC ĐỒNG XU: BẤM VÀO ĐỂ BẬT MÀN HÌNH NẠP TIỀN -->
+            <button onclick="navigateTo('deposit')" class="flex items-center space-x-2 bg-red-700 px-2 py-1 rounded-full text-xs active:scale-95 transition-all focus:outline-none">
+                <i class="fas fa-plus-circle text-green-400 mr-0.5"></i>
                 <i class="fas fa-coins text-yellow-400"></i>
                 <span id="user-points" class="font-bold">120đ</span>
-            </div>
+            </button>
         </div>
 
+        <!-- MÀN HÌNH 1: TRANG CHỦ (MAP VÀ BOTTOM SHEET) -->
         <div id="screen-home" class="flex-1 flex flex-col relative overflow-hidden">
+            <!-- VÙNG CHỨA CỐ ĐỊNH PHẦN TRÊN -->
             <div class="bg-white px-4 pt-2 pb-1.5 z-20 shadow-sm text-center">
                 <div class="bg-gray-100 p-1 rounded-xl flex border border-gray-200 mb-1.5">
                     <button id="tab-walker" onclick="switchMode('walker')" class="flex-1 py-2 text-center text-sm font-bold rounded-lg bg-red-600 text-white transition-all">
@@ -61,6 +70,7 @@
                 </p>
             </div>
 
+            <!-- KHU VỰC MAP ĐỘNG -->
             <div id="map-viewport" class="flex-1 bg-gray-300 relative overflow-hidden map-container">
                 <div id="map-content" class="absolute w-[900px] h-[600px] top-[-50px] left-[-200px] transition-transform duration-75 ease-out" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/d/d4/Map_of_Hanoi_University_of_Science_and_Technology.jpg'); background-size: cover; background-position: center;">
                     <div class="absolute top-[60%] left-[35%] text-blue-600 text-center pointer-events-none">
@@ -75,13 +85,10 @@
                         <i class="fas fa-map-marker-alt text-4xl text-red-600 drop-shadow-md group-hover:scale-110 transition-all"></i>
                         <span class="block bg-white text-black text-[10px] px-1.5 py-0.5 rounded shadow border border-red-500 font-bold whitespace-nowrap mt-0.5">Thư viện TQB</span>
                     </button>
-                    <button onclick="selectDestination('Cổng Parabol (Đường Giải Phóng)')" class="absolute top-[42%] left-[12%] focus:outline-none group">
-                        <i class="fas fa-map-marker-alt text-4xl text-red-600 drop-shadow-md group-hover:scale-110 transition-all"></i>
-                        <span class="block bg-white text-black text-[10px] px-1.5 py-0.5 rounded shadow border border-red-500 font-bold whitespace-nowrap mt-0.5">Cổng Parabol</span>
-                    </button>
                 </div>
             </div>
 
+            <!-- THANH ĐỊA ĐIỂM (BOTTOM SHEET) -->
             <div id="bottom-sheet" class="absolute bottom-0 inset-x-0 bg-white rounded-t-3xl shadow-[0_-10px_25px_rgba(0,0,0,0.15)] z-20 flex flex-col transition-all duration-300 border-t border-gray-100" style="height: 290px;">
                 <div id="sheet-handle" class="w-full py-3 cursor-row-resize flex justify-center items-center select-none active:bg-gray-50 rounded-t-3xl">
                     <div class="w-14 h-1.5 bg-gray-300 rounded-full"></div>
@@ -100,7 +107,7 @@
                                     </div>
                                     <div>
                                         <h4 class="text-xs font-bold text-gray-800">Đến Bách Khoa nói chung</h4>
-                                        <p class="text-[9.5px] text-gray-500 mt-0.5">Tăng khả năng ghép đôi tiện đường và tiết kiệm thời gian chờ</p>
+                                        <p class="text-[9.5px] text-gray-500 mt-0.5">Tăng khả năng ghép đôi và tiết kiệm thời gian chờ</p>
                                     </div>
                                 </div>
                                 <i class="fas fa-chevron-right text-xs text-gray-400"></i>
@@ -160,12 +167,12 @@
             </div>
         </div>
 
+        <!-- MÀN HÌNH 2: ĐỔI THƯỞNG -->
         <div id="screen-rewards" class="flex-1 bg-gray-50 overflow-y-auto p-4 space-y-4 hidden">
             <div>
                 <h2 class="font-black text-gray-800 text-lg">Đổi Điểm Thưởng</h2>
                 <p class="text-xs text-gray-500 font-medium">Sử dụng điểm tích lũy đổi quà tặng từ các đối tác quanh trường</p>
             </div>
-
             <div class="space-y-3">
                 <div class="bg-white border border-gray-200 rounded-2xl p-3 flex justify-between items-center shadow-sm">
                     <div class="flex items-center space-x-3">
@@ -178,7 +185,6 @@
                     </div>
                     <button onclick="redeemReward('Voucher Cafe Kiot K6', 15)" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow-sm">Đổi ngay</button>
                 </div>
-
                 <div class="bg-white border border-gray-200 rounded-2xl p-3 flex justify-between items-center shadow-sm">
                     <div class="flex items-center space-x-3">
                         <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 text-xl"><i class="fas fa-book"></i></div>
@@ -190,21 +196,72 @@
                     </div>
                     <button onclick="redeemReward('Voucher Nhà Sách BK', 30)" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow-sm">Đổi ngay</button>
                 </div>
-
-                <div class="bg-white border border-gray-200 rounded-2xl p-3 flex justify-between items-center shadow-sm">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600 text-xl"><i class="fas fa-motorcycle"></i></div>
-                        <div>
-                            <h4 class="text-xs font-bold text-gray-800">Miễn Phí 1 Lượt Gửi Xe Máy</h4>
-                            <p class="text-[10px] text-gray-400 font-medium">Áp dụng bãi xe trường HUST</p>
-                            <span class="inline-block mt-1 text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-md"><i class="fas fa-coins text-yellow-500 mr-0.5"></i> Yêu cầu: 5đ</span>
-                        </div>
-                    </div>
-                    <button onclick="redeemReward('Vé gửi xe HUST miễn phí', 5)" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-2 rounded-xl shadow-sm">Đổi ngay</button>
-                </div>
             </div>
         </div>
 
+        <!-- MÀN HÌNH 3: NẠP TIỀN ĐỂ TĂNG COINS (MỚI THÊM) -->
+        <div id="screen-deposit" class="flex-1 bg-gray-50 overflow-y-auto p-4 space-y-4 hidden">
+            <div class="flex items-center space-x-2">
+                <button onclick="navigateTo('home')" class="text-gray-600 hover:text-gray-900 bg-white border border-gray-200 w-8 h-8 rounded-full flex items-center justify-center shadow-sm">
+                    <i class="fas fa-arrow-left text-xs"></i>
+                </button>
+                <h2 class="font-black text-gray-800 text-base">Mua Gói Xu Đi Chung Xe</h2>
+            </div>
+
+            <!-- Các gói xu mẫu -->
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="selectPackage(10, 10000)" id="pkg-1" class="bg-white border-2 border-red-500 rounded-2xl p-3 text-center shadow-sm flex flex-col items-center justify-center transition-all">
+                    <i class="fas fa-coins text-yellow-500 text-xl mb-1"></i>
+                    <span class="text-xs font-black text-gray-800">10 Xu</span>
+                    <span class="text-[10px] text-red-600 font-bold mt-1">10.000đ</span>
+                </button>
+                <button onclick="selectPackage(25, 20000)" id="pkg-2" class="bg-white border border-gray-200 rounded-2xl p-3 text-center shadow-sm flex flex-col items-center justify-center transition-all">
+                    <div class="absolute -top-2 bg-yellow-500 text-white font-bold text-[7px] px-1.5 py-0.5 rounded-full uppercase scale-90">Tặng +5xu</div>
+                    <i class="fas fa-coins text-yellow-500 text-xl mb-1"></i>
+                    <span class="text-xs font-black text-gray-800">25 Xu</span>
+                    <span class="text-[10px] text-gray-500 font-medium mt-1">20.000đ</span>
+                </button>
+                <button onclick="selectPackage(70, 50000)" id="pkg-3" class="bg-white border border-gray-200 rounded-2xl p-3 text-center shadow-sm flex flex-col items-center justify-center transition-all">
+                    <div class="absolute -top-2 bg-yellow-500 text-white font-bold text-[7px] px-1.5 py-0.5 rounded-full uppercase scale-90">Tặng +20xu</div>
+                    <i class="fas fa-coins text-yellow-500 text-xl mb-1"></i>
+                    <span class="text-xs font-black text-gray-800">70 Xu</span>
+                    <span class="text-[10px] text-gray-500 font-medium mt-1">50.000đ</span>
+                </button>
+            </div>
+
+            <!-- Lựa chọn phương thức thanh toán -->
+            <div class="space-y-2 pt-2">
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Phương thức thanh toán</h3>
+                
+                <label class="bg-white border border-red-500 rounded-xl p-3 flex justify-between items-center cursor-pointer shadow-sm">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center text-pink-600 font-bold text-xs">MoMo</div>
+                        <span class="text-xs font-bold text-gray-800">Ví điện tử MoMo</span>
+                    </div>
+                    <input type="radio" name="payment" value="momo" checked class="accent-red-600">
+                </label>
+
+                <label class="bg-white border border-gray-200 rounded-xl p-3 flex justify-between items-center cursor-pointer shadow-sm hover:border-gray-300">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-bold text-[10px]">VNPAY</div>
+                        <span class="text-xs font-bold text-gray-800">Cổng VNPAY (Thẻ ATM/QR)</span>
+                    </div>
+                    <input type="radio" name="payment" value="vnpay" class="accent-red-600">
+                </label>
+            </div>
+
+            <!-- Tổng kết & nút kích hoạt nạp xu -->
+            <div class="bg-red-50/50 border border-red-100 rounded-xl p-3 flex justify-between items-center text-xs">
+                <span class="font-medium text-gray-600">Tổng thanh toán:</span>
+                <span id="deposit-total" class="font-black text-red-600 text-sm">10.000 VNĐ</span>
+            </div>
+
+            <button onclick="processDeposit()" class="w-full bg-red-600 hover:bg-red-700 text-white text-sm font-bold py-3 rounded-xl shadow-md transition-all active:scale-95">
+                XÁC NHẬN THANH TOÁN
+            </button>
+        </div>
+
+        <!-- Bottom Navigation -->
         <div class="bg-white border-t border-gray-200 px-6 py-2 flex justify-between items-center text-gray-400 z-30 relative">
             <button id="nav-home" onclick="navigateTo('home')" class="flex flex-col items-center space-y-0.5 text-red-600">
                 <i class="fas fa-home text-lg"></i>
@@ -226,48 +283,68 @@
 
     </div>
 
+    <!-- CODE SCRIPT ĐIỀU KHIỂN HỆ THỐNG -->
     <script>
-        // --- LOGIC DI CHUYỂN MÀN HÌNH CHỨC NĂNG (NAVIGATE) ---
+        let selectedCoins = 10;
+        let selectedPrice = 10000;
+
+        // Tương tác chọn gói xu nhanh
+        function selectPackage(coins, price) {
+            selectedCoins = coins;
+            selectedPrice = price;
+            
+            // Format hiển thị tiền VNĐ
+            document.getElementById('deposit-total').innerText = price.toLocaleString('vi-VN') + " VNĐ";
+
+            // Reset và đổi viền đỏ nút đang chọn
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById('pkg-' + i).className = "bg-white border border-gray-200 rounded-2xl p-3 text-center shadow-sm flex flex-col items-center justify-center relative transition-all";
+            }
+            let activeId = coins === 10 ? 1 : (coins === 25 ? 2 : 3);
+            document.getElementById('pkg-' + activeId).className = "bg-white border-2 border-red-500 rounded-2xl p-3 text-center shadow-sm flex flex-col items-center justify-center relative transition-all";
+        }
+
+        // Thực hiện nạp tiền xử lý ảo
+        function processDeposit() {
+            let confirmPay = confirm(`Hệ thống đang chuyển hướng tới ứng dụng ngân hàng để thanh toán số tiền ${selectedPrice.toLocaleString('vi-VN')}đ.`);
+            if(confirmPay) {
+                let pointsElement = document.getElementById('user-points');
+                let currentPoints = parseInt(pointsElement.innerText);
+                
+                // Cộng dồn xu thật trên Header
+                pointsElement.innerText = (currentPoints + selectedCoins) + "đ";
+                alert(`🎉 Giao dịch thành công!\nTài khoản của bạn đã được cộng thêm +${selectedCoins} xu.`);
+                navigateTo('home');
+            }
+        }
+
+        // Điều hướng màn hình
         function navigateTo(screen) {
             const homeScreen = document.getElementById('screen-home');
             const rewardsScreen = document.getElementById('screen-rewards');
+            const depositScreen = document.getElementById('screen-deposit');
             const navHome = document.getElementById('nav-home');
             const navRewards = document.getElementById('nav-rewards');
 
+            // Ẩn tất cả
+            homeScreen.classList.add('hidden');
+            rewardsScreen.classList.add('hidden');
+            depositScreen.classList.add('hidden');
+            navHome.className = "flex flex-col items-center space-y-0.5 text-gray-400 hover:text-gray-600";
+            navRewards.className = "flex flex-col items-center space-y-0.5 text-gray-400 hover:text-gray-600";
+
             if (screen === 'home') {
                 homeScreen.classList.remove('hidden');
-                rewardsScreen.classList.add('hidden');
                 navHome.className = "flex flex-col items-center space-y-0.5 text-red-600";
-                navRewards.className = "flex flex-col items-center space-y-0.5 text-gray-400 hover:text-gray-600";
             } else if (screen === 'rewards') {
-                homeScreen.classList.add('hidden');
                 rewardsScreen.classList.remove('hidden');
                 navRewards.className = "flex flex-col items-center space-y-0.5 text-red-600";
-                navHome.className = "flex flex-col items-center space-y-0.5 text-gray-400 hover:text-gray-600";
+            } else if (screen === 'deposit') {
+                depositScreen.classList.remove('hidden');
             }
         }
 
-        // --- LOGIC KHẤU TRỪ COINS VÀ ĐỔI QUÀ ---
-        function redeemReward(voucherName, costPoints) {
-            let pointsElement = document.getElementById('user-points');
-            let currentPoints = parseInt(pointsElement.innerText);
-
-            if (currentPoints >= costPoints) {
-                let confirmRedeem = confirm(`Bạn có chắc chắn muốn dùng ${costPoints}đ để đổi lấy "${voucherName}" không?`);
-                if (confirmRedeem) {
-                    currentPoints -= costPoints;
-                    pointsElement.innerText = currentPoints + "đ";
-                    
-                    // Tạo mã Code ngẫu nhiên giả lập cho sinh viên đi nhận quà
-                    let randomCode = "HR" + Math.floor(100000 + Math.random() * 900000);
-                    alert(`🎉 Đổi quà thành công!\nMã ưu đãi của bạn là: ${randomCode}\nHãy xuất trình mã này tại quầy đối tác để nhận ưu đãi.`);
-                }
-            } else {
-                alert(`❌ Không đủ điểm thưởng!\nBạn cần thêm ${costPoints - currentPoints}đ nữa. Hãy tích cực bật chế độ "Đón Bạn" để đèo thành viên tiện đường tích thêm coin nhé!`);
-            }
-        }
-
-        // --- GIỮ CÁC LOGIC CUỘN MAP VÀ BOTTOM SHEET CŨ ---
+        // --- CODE KÉO THẢ MAP VÀ BOTTOM SHEET ---
         const viewport = document.getElementById('map-viewport');
         const mapContent = document.getElementById('map-content');
         let isDraggingMap = false;
@@ -279,7 +356,6 @@
             startX = e.clientX - currentLeft;
             startY = e.clientY - currentTop;
         });
-
         window.addEventListener('mousemove', (e) => {
             if (!isDraggingMap) return;
             currentLeft = e.clientX - startX;
