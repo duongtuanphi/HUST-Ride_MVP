@@ -1,0 +1,4 @@
+- Chưa có tính năng log acc
+- Làm thế nào để ng khác có thể truy cập được vào
+- Chưa thể lưu lịch trình
+- . . .
